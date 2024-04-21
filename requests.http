@@ -1,0 +1,98 @@
+@url = http://localhost:8080/api/v1
+
+# GET list of beers
+GET {{url}}/beers
+Content-Type: application/json
+
+###
+
+# GET beer by id
+GET {{url}}/beers/184372f5-18f7-4b12-9590-e02002123923
+Content-Type: application/json
+
+###
+
+# POST beer
+POST {{url}}/beers
+Content-Type: application/json
+
+{
+    "name": "Andechser Dunkel",
+    "style": "STOUT",
+    "upc": "471112",
+    "quantityOnHand": 210,
+    "price": 12.76
+}
+
+###
+
+# PUT beer
+PUT {{url}}/beers/dffe54cc-5025-4977-b5bc-2c50f2df4679
+Content-Type: application/json
+
+{
+    "name": "Erdinger Weizen *UPDATED*"
+}
+
+###
+
+# DELETE beer by id
+DELETE {{url}}/beers/d18cc4ad-fd7a-470b-be83-a01f76ad818f
+
+###
+
+# PATCH beer
+PATCH {{url}}/beers/9b6abf8d-4032-4d11-b918-f52cf5077a31
+Content-Type: application/json
+
+{
+    "price": 13.24
+}
+
+###
+
+# GET list of customers
+GET {{url}}/customers
+Content-Type: application/json
+
+###
+
+# GET customer by Id
+GET {{url}}/customers/e87db851-9b6c-4699-873f-2b3b33ae35a3
+
+###
+
+# POST customer
+POST {{url}}/customers
+Content-Type: application/json
+
+{
+    "name": "Gschaftlhuber KG"
+}
+
+###
+
+# PUT customer by id
+PUT {{url}}/customers/8735b308-dfa2-4153-babf-aa74fb82e53e
+Content-Type: application/json
+
+{
+    "name": "Klosterfrau GmbH & Co KG"
+}
+
+###
+
+# DELETE customer by id
+DELETE {{url}}/customers/f6a137c4-cccd-42db-9970-d3b210e22cde
+
+###
+
+# PATCH customer by id
+PATCH {{url}}/customers/1ed8dcd2-c835-44ca-9c46-0ff8d35f70bc
+Content-Type: application/json
+
+{
+    "version": 2
+}
+
+###
