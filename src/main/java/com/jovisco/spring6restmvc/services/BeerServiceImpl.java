@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.jovisco.spring6restmvc.controllers.NotFoundException;
 import com.jovisco.spring6restmvc.model.Beer;
 import com.jovisco.spring6restmvc.model.BeerStyle;
 
@@ -34,11 +36,11 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer getBeerById(UUID id) {
+    public Optional<Beer> getBeerById(UUID id) {
         
         log.debug("Service BeerService.getBeerById was called with id: " + id);
 
-        return beerMap.get(id);
+        return Optional.of(beerMap.get(id));
     }
     
     @Override
@@ -63,8 +65,7 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public Beer updateBeer(UUID id, Beer beer) {
         // get beer by id
-        Beer found = getBeerById(id);
-        if (found == null) throw new RuntimeException(String.format("Beer with id = %s not found", id));
+        Beer found = getBeerById(id).orElseThrow(NotFoundException::new);
 
         // replace values
         String name = beer.getName();

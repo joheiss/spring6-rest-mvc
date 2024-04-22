@@ -28,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.core.Is.is;
 
@@ -68,7 +70,7 @@ public class BeerControllerTest {
     void testGetBeerById() throws Exception {
         // get 1st beer from list to return that as test data
         Beer testBeer = beerServiceImpl.listBeers().get(0);
-        given(beerService.getBeerById(testBeer.getId())).willReturn(testBeer);
+        given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
 
         mockMvc.perform(get(BeerController.BEERS_PATH_ID, testBeer.getId())
             .accept(MediaType.APPLICATION_JSON))
@@ -76,6 +78,16 @@ public class BeerControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id", is(testBeer.getId().toString())))
             .andExpect(jsonPath("$.name", is(testBeer.getName())));
+    }
+
+    @Test
+    void testGetBeerByIdNotFound() throws Exception {
+        // prepare the NotFoundExcepion
+        given(beerService.getBeerById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc
+            .perform(get(BeerController.BEERS_PATH_ID, UUID.randomUUID()))
+            .andExpect(status().isNotFound());
     }
 
     @Test

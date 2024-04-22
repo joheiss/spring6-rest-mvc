@@ -44,7 +44,7 @@ public class BeerController {
 
         log.debug("Controller BeerController.getBeerById was called with id: " + id);
 
-        return beerService.getBeerById(id);
+        return beerService.getBeerById(id).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping(BEERS_PATH)
@@ -85,4 +85,5 @@ public class BeerController {
         // return HTTP status
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
 }

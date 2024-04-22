@@ -15,6 +15,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,7 +70,7 @@ public class CustomerControllerTest {
     void testGetCustomerById() throws Exception {
         // get 1st item from list of customers to be returned in the test
         Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
-        given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
+        given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(get(CustomerController.CUSTOMERS_PATH_ID, testCustomer.getId())
             .accept(MediaType.APPLICATION_JSON))
@@ -78,6 +80,16 @@ public class CustomerControllerTest {
             .andExpect(jsonPath("$.name", Is.is(testCustomer.getName()))
         );
 
+    }
+
+    @Test
+    void testGetCustomerByIdNotFound() throws Exception {
+        // prepare the NotFoundExcepion
+        given(customerService.getCustomerById(any(UUID.class))).willReturn(Optional.empty());
+
+        mockMvc
+            .perform(get(CustomerController.CUSTOMERS_PATH_ID, UUID.randomUUID()))
+            .andExpect(status().isNotFound());
     }
 
     @Test

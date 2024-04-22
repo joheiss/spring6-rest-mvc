@@ -38,9 +38,9 @@ public class CustomerController {
     }
     
     @GetMapping(CUSTOMERS_PATH_ID)
-    Customer getCustomerbyId(@PathVariable UUID id) {
+        Customer getCustomerbyId(@PathVariable UUID id) {
         log.debug("CustomerController.getCustomerById was called with id: " + id);
-        return customerService.getCustomerById(id);
+        return customerService.getCustomerById(id).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping(CUSTOMERS_PATH)

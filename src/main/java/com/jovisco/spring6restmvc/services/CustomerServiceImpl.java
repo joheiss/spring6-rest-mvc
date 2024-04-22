@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.jovisco.spring6restmvc.controllers.NotFoundException;
 import com.jovisco.spring6restmvc.model.Customer;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +33,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer getCustomerById(UUID id) {
+    public Optional<Customer> getCustomerById(UUID id) {
         log.debug("CustomerService.getCustomerById was called with ID: "+ id);
-        return customersMap.get(id);
+        return Optional.of(customersMap.get(id));
     }
     
 
@@ -55,8 +57,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Customer updateCustomer(UUID id, Customer customer) {
        // get existing customer
-       Customer found = getCustomerById(id);
-       if (found == null) throw new RuntimeException(String.format("No customer found for id = %s", id));
+       Customer found = getCustomerById(id).orElseThrow(NotFoundException::new);
 
        // replace values
        Integer version = customer.getVersion();
@@ -68,9 +69,6 @@ public class CustomerServiceImpl implements CustomerService {
         found.setName(name);
        }
        found.setUpdatedAt(LocalDateTime.now());
-
-       // store changes -> NOT NEEDED ON SAME OBJECT
-       // customersMap.put(found.getId(), found);
 
        return found;
     }
