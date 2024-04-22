@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jovisco.spring6restmvc.model.Beer;
 import com.jovisco.spring6restmvc.services.BeerService;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpHeaders;
@@ -21,17 +21,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
-@RequestMapping("api/v1/beers")
 public class BeerController {
-    
+    public static final String BEERS_PATH = "/api/v1/beers";
+    public static final String BEERS_PATH_ID = "/api/v1/beers/{id}";
+
     private final BeerService beerService;
     
-    @GetMapping
+    @GetMapping(BEERS_PATH)
     public List<Beer> listBeers() {
         
         log.debug("Controller BeerController.listBeers was called");
@@ -39,7 +39,7 @@ public class BeerController {
         return beerService.listBeers();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(BEERS_PATH_ID)
     public Beer getBeerById(@PathVariable UUID id) {
 
         log.debug("Controller BeerController.getBeerById was called with id: " + id);
@@ -47,20 +47,20 @@ public class BeerController {
         return beerService.getBeerById(id);
     }
 
-    @PostMapping
+    @PostMapping(BEERS_PATH)
     public ResponseEntity<HttpStatus> createBeer(@RequestBody Beer beer) {
         // create beer object from request body
         Beer savedBeer = beerService.createBeer(beer);
 
         // set Location header
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", String.format("/api/v1/beers/%s", savedBeer.getId().toString()));
+        headers.add("Location", BEERS_PATH + "/" + savedBeer.getId().toString());
 
         // HTTP status = 201 CREATED
         return new ResponseEntity<>(headers, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(BEERS_PATH_ID)
     public ResponseEntity<HttpStatus> updateBeerById(@PathVariable UUID id, @RequestBody Beer beer) {
         // update beer object from request body
         beerService.updateBeer(id, beer);
@@ -69,7 +69,7 @@ public class BeerController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(BEERS_PATH_ID)
     public ResponseEntity<HttpStatus> deleteBeerById(@PathVariable UUID id) {
         // delete beer object
         beerService.deleteBeer(id);
@@ -77,7 +77,7 @@ public class BeerController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping(BEERS_PATH_ID)
     public ResponseEntity<HttpStatus> patchBeerById(@PathVariable UUID id, @RequestBody Beer beer) {
         // update beer object from request body
         beerService.updateBeer(id, beer);
