@@ -3,19 +3,29 @@ package com.jovisco.spring6restmvc.controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.byLessThan;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jovisco.spring6restmvc.mappers.BeerMapper;
 import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.repositories.BeerRepository;
@@ -32,6 +42,19 @@ public class BeerControllerIT {
 
     @Autowired
     BeerMapper beerMapper;
+
+    @Autowired
+    ObjectMapper objectMapper;
+    
+    @Autowired
+    WebApplicationContext wac;
+
+    MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
     
     @Rollback
     @Transactional
@@ -122,8 +145,26 @@ public class BeerControllerIT {
     }
 
     @Test
-    void testPatchBeerById() {
+    void testPatchBeerByIdWithInvalidName() throws Exception {
+        // get 1st item on list for testing
+        var found = beerRepository.findAll().get(0);
+        
+        // modify values
+         Map<String, Object> beerMap = new HashMap<>();
+        beerMap.put("name", found.getName() + "*UPDATED12345678901234567890123456789012345678901234567890*");
+        beerMap.put("updatedAt", LocalDateTime.now());
 
+        var result = mockMvc
+            .perform(patch(BeerController.BEERS_PATH_ID, found.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(beerMap))
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest())
+            .andReturn();
+        
+        System.out.println(result.getResponse().getContentAsString());
+        System.out.flush();
     }
 
     @Rollback

@@ -113,6 +113,23 @@ public class BeerControllerTest {
     }
 
     @Test
+    void testCreateBeerWithoutMandatoryFields() throws Exception {
+        //create empty beer instance
+        var testBeer = BeerDTO.builder().build();
+
+        // this is needed to have a return value for the mocked "createBeer" within the beer controller
+        given(beerService.createBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers().get(0));
+
+        mockMvc
+            .perform(post(BeerController.BEERS_PATH)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testBeer))
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void testUpdateBeerById() throws Exception {
         // get 1st item on list for testing
         BeerDTO found = beerServiceImpl.listBeers().get(0);
@@ -132,6 +149,31 @@ public class BeerControllerTest {
 
         // verify that BeerService was called ONCE with proper arguments
         verify(beerService, times(1)).updateBeer(testBeer.getId(), testBeer);
+    }
+
+    @Test
+    void testUpdateBeerByIdWithMissingMandatoryFields() throws Exception {
+        // get 1st item on list for testing
+        BeerDTO found = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = BeerDTO.builder().build();
+        BeanUtils.copyProperties(found, testBeer);
+        // testBeer.setName(null);
+        // testBeer.setStyle(null);
+        // testBeer.setUpc(null);
+        testBeer.setPrice(null);
+
+        given(beerService.updateBeer(any(), any())).willReturn(Optional.of(found));
+
+        mockMvc
+            .perform(put(BeerController.BEERS_PATH_ID, testBeer.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(testBeer))
+                .contentType(MediaType.APPLICATION_JSON)
+            )
+            .andExpect(status().isBadRequest());
+
+        // verify that BeerService was NOT called 
+        verify(beerService, times(0)).updateBeer(testBeer.getId(), testBeer);
     }
 
     @Test

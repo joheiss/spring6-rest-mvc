@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class BeerController {
     public static final String BEERS_PATH = "/api/v1/beers";
     public static final String BEERS_PATH_ID = "/api/v1/beers/{id}";
+    public static final String BEER_PATH_ID = null;
 
     private final BeerService beerService;
     
@@ -48,7 +50,7 @@ public class BeerController {
     }
 
     @PostMapping(BEERS_PATH)
-    public ResponseEntity<HttpStatus> createBeer(@RequestBody BeerDTO beer) {
+    public ResponseEntity<HttpStatus> createBeer(@Validated @RequestBody BeerDTO beer) {
         // create beer object from request body
         BeerDTO savedBeer = beerService.createBeer(beer);
 
@@ -61,7 +63,7 @@ public class BeerController {
     }
 
     @PutMapping(BEERS_PATH_ID)
-    public ResponseEntity<HttpStatus> updateBeerById(@PathVariable UUID id, @RequestBody BeerDTO beer) {
+    public ResponseEntity<HttpStatus> updateBeerById(@PathVariable UUID id, @Validated @RequestBody BeerDTO beer) {
         // update beer object from request body
         beerService.updateBeer(id, beer).orElseThrow(NotFoundException::new);
 
