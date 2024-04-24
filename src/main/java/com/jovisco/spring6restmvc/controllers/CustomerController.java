@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jovisco.spring6restmvc.model.Customer;
+import com.jovisco.spring6restmvc.model.CustomerDTO;
 import com.jovisco.spring6restmvc.services.CustomerService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,21 +32,21 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping(CUSTOMERS_PATH)
-    List<Customer> getAllCustomers() {
+    List<CustomerDTO> getAllCustomers() {
         log.debug("CustomerComtroller.getAllCustomers was called.");
         return customerService.getAllCustomers();
     }
     
     @GetMapping(CUSTOMERS_PATH_ID)
-        Customer getCustomerbyId(@PathVariable UUID id) {
+        CustomerDTO getCustomerbyId(@PathVariable UUID id) {
         log.debug("CustomerController.getCustomerById was called with id: " + id);
         return customerService.getCustomerById(id).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping(CUSTOMERS_PATH)
-    ResponseEntity<HttpStatus> createCustomer(@RequestBody Customer customer) {
+    ResponseEntity<HttpStatus> createCustomer(@RequestBody CustomerDTO customer) {
         // create new customer from request body
-        Customer savedCustomer = customerService.createCustomer(customer);
+        CustomerDTO savedCustomer = customerService.createCustomer(customer);
         // set Location header
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", CUSTOMERS_PATH + "/" + savedCustomer.getId());
@@ -55,9 +55,9 @@ public class CustomerController {
     }
 
     @PutMapping(CUSTOMERS_PATH_ID)
-    ResponseEntity<HttpStatus> updateCustomerbyId(@PathVariable UUID id, @RequestBody Customer customer) {
+    ResponseEntity<HttpStatus> updateCustomerById(@PathVariable UUID id, @RequestBody CustomerDTO customer) {
         // update existing customer from request body
-        customerService.updateCustomer(id, customer);
+        customerService.updateCustomer(id, customer).orElseThrow(NotFoundException::new);
 
         // return HTTP status
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -72,7 +72,7 @@ public class CustomerController {
     }
 
     @PatchMapping(CUSTOMERS_PATH_ID)
-    ResponseEntity<HttpStatus> patchCustomerbyId(@PathVariable UUID id, @RequestBody Customer customer) {
+    ResponseEntity<HttpStatus> patchCustomerbyId(@PathVariable UUID id, @RequestBody CustomerDTO customer) {
         // update existing customer from request body
         customerService.updateCustomer(id, customer);
 

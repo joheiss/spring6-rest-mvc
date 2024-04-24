@@ -10,8 +10,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.jovisco.spring6restmvc.controllers.NotFoundException;
-import com.jovisco.spring6restmvc.model.Customer;
+import com.jovisco.spring6restmvc.model.CustomerDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CustomerServiceImpl implements CustomerService {
 
-    private Map<UUID, Customer> customersMap;
+    private Map<UUID, CustomerDTO> customersMap;
     
     
     public CustomerServiceImpl() {
@@ -27,21 +26,20 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<Customer> getAllCustomers() {
+    public List<CustomerDTO> getAllCustomers() {
         log.debug("CustomerService.getAllCustomers was called.");
         return new ArrayList<>(customersMap.values());
     }
 
     @Override
-    public Optional<Customer> getCustomerById(UUID id) {
+    public Optional<CustomerDTO> getCustomerById(UUID id) {
         log.debug("CustomerService.getCustomerById was called with ID: "+ id);
         return Optional.of(customersMap.get(id));
     }
     
-
      @Override
-    public Customer createCustomer(Customer customer) {
-        Customer savedCustomer = Customer.builder()
+    public CustomerDTO createCustomer(CustomerDTO customer) {
+        CustomerDTO savedCustomer = CustomerDTO.builder()
             .id(UUID.randomUUID())
             .version(1)
             .name(customer.getName())
@@ -55,9 +53,10 @@ public class CustomerServiceImpl implements CustomerService {
     } 
 
     @Override
-    public Customer updateCustomer(UUID id, Customer customer) {
+    public Optional<CustomerDTO> updateCustomer(UUID id, CustomerDTO customer) {
        // get existing customer
-       Customer found = getCustomerById(id).orElseThrow(NotFoundException::new);
+       CustomerDTO found = getCustomerById(id).orElse(null);
+       if (found == null) return Optional.ofNullable(found);
 
        // replace values
        Integer version = customer.getVersion();
@@ -70,7 +69,7 @@ public class CustomerServiceImpl implements CustomerService {
        }
        found.setUpdatedAt(LocalDateTime.now());
 
-       return found;
+       return Optional.ofNullable(found);
     }
 
     @Override
@@ -79,10 +78,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-    private Map<UUID, Customer> initCustomersMap() {
-        Map<UUID, Customer> customersMap = new HashMap<>();
+    private Map<UUID, CustomerDTO> initCustomersMap() {
+        Map<UUID, CustomerDTO> customersMap = new HashMap<>();
         
-        Customer customer1 = Customer.builder()
+        CustomerDTO customer1 = CustomerDTO.builder()
             .id(UUID.randomUUID())
             .name("Hampelmann AG")
             .version(1)
@@ -90,7 +89,7 @@ public class CustomerServiceImpl implements CustomerService {
             .updatedAt(LocalDateTime.now())
             .build();
 
-        Customer customer2 = Customer.builder()
+        CustomerDTO customer2 = CustomerDTO.builder()
             .id(UUID.randomUUID())
             .name("Klosterfrau GmbH")
             .version(1)

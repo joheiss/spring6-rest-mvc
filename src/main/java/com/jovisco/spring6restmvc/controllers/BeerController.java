@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jovisco.spring6restmvc.model.Beer;
+import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.services.BeerService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class BeerController {
     private final BeerService beerService;
     
     @GetMapping(BEERS_PATH)
-    public List<Beer> listBeers() {
+    public List<BeerDTO> listBeers() {
         
         log.debug("Controller BeerController.listBeers was called");
 
@@ -40,7 +40,7 @@ public class BeerController {
     }
 
     @GetMapping(BEERS_PATH_ID)
-    public Beer getBeerById(@PathVariable UUID id) {
+    public BeerDTO getBeerById(@PathVariable UUID id) {
 
         log.debug("Controller BeerController.getBeerById was called with id: " + id);
 
@@ -48,9 +48,9 @@ public class BeerController {
     }
 
     @PostMapping(BEERS_PATH)
-    public ResponseEntity<HttpStatus> createBeer(@RequestBody Beer beer) {
+    public ResponseEntity<HttpStatus> createBeer(@RequestBody BeerDTO beer) {
         // create beer object from request body
-        Beer savedBeer = beerService.createBeer(beer);
+        BeerDTO savedBeer = beerService.createBeer(beer);
 
         // set Location header
         HttpHeaders headers = new HttpHeaders();
@@ -61,9 +61,9 @@ public class BeerController {
     }
 
     @PutMapping(BEERS_PATH_ID)
-    public ResponseEntity<HttpStatus> updateBeerById(@PathVariable UUID id, @RequestBody Beer beer) {
+    public ResponseEntity<HttpStatus> updateBeerById(@PathVariable UUID id, @RequestBody BeerDTO beer) {
         // update beer object from request body
-        beerService.updateBeer(id, beer);
+        beerService.updateBeer(id, beer).orElseThrow(NotFoundException::new);
 
         // return HTTP status
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -78,9 +78,9 @@ public class BeerController {
     }
 
     @PatchMapping(BEERS_PATH_ID)
-    public ResponseEntity<HttpStatus> patchBeerById(@PathVariable UUID id, @RequestBody Beer beer) {
+    public ResponseEntity<HttpStatus> patchBeerById(@PathVariable UUID id, @RequestBody BeerDTO beer) {
         // update beer object from request body
-        beerService.updateBeer(id, beer);
+        beerService.updateBeer(id, beer).orElseThrow(NotFoundException::new);
 
         // return HTTP status
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

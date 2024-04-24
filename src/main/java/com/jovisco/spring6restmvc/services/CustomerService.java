@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.jovisco.spring6restmvc.model.Customer;
+import com.jovisco.spring6restmvc.model.CustomerDTO;
 
 public interface CustomerService {
-    List<Customer> getAllCustomers();
-    Optional<Customer> getCustomerById(UUID id);
-    Customer createCustomer(Customer customer);
-    Customer updateCustomer(UUID id, Customer customer);
+    List<CustomerDTO> getAllCustomers();
+    Optional<CustomerDTO> getCustomerById(UUID id);
+    CustomerDTO createCustomer(CustomerDTO customer);
+    Optional<CustomerDTO> updateCustomer(UUID id, CustomerDTO customer);
     void deleteCustomer(UUID id);
 }

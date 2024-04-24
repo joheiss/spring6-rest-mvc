@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.jovisco.spring6restmvc.model.Beer;
+import com.jovisco.spring6restmvc.model.BeerDTO;
 
 public interface BeerService {
-    List<Beer> listBeers();
-    Optional<Beer> getBeerById(UUID id);
-    Beer createBeer(Beer beer);
-    Beer updateBeer(UUID id, Beer beer);
+    List<BeerDTO> listBeers();
+    Optional<BeerDTO> getBeerById(UUID id);
+    BeerDTO createBeer(BeerDTO beer);
+    Optional<BeerDTO> updateBeer(UUID id, BeerDTO beer);
     void deleteBeer(UUID id);
 }

@@ -29,7 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jovisco.spring6restmvc.model.Customer;
+import com.jovisco.spring6restmvc.model.CustomerDTO;
 import com.jovisco.spring6restmvc.services.CustomerService;
 import com.jovisco.spring6restmvc.services.CustomerServiceImpl;
 
@@ -55,7 +55,7 @@ public class CustomerControllerTest {
     @Test
     void testGetAllCustomers() throws Exception {
         // get list of customers to be returned in the test
-        List<Customer> testCustomers = customerServiceImpl.getAllCustomers();
+        List<CustomerDTO> testCustomers = customerServiceImpl.getAllCustomers();
         given(customerService.getAllCustomers()).willReturn(testCustomers);
 
         mockMvc.perform(get(CustomerController.CUSTOMERS_PATH)
@@ -69,7 +69,7 @@ public class CustomerControllerTest {
     @Test
     void testGetCustomerById() throws Exception {
         // get 1st item from list of customers to be returned in the test
-        Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
         given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(get(CustomerController.CUSTOMERS_PATH_ID, testCustomer.getId())
@@ -95,15 +95,15 @@ public class CustomerControllerTest {
     @Test
     void testCreateCustomer() throws Exception {
         // get 1st item from list of customers to be used as test input
-        Customer found = customerServiceImpl.getAllCustomers().get(0);
-        Customer testCustomer = Customer.builder().build();
+        CustomerDTO found = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = CustomerDTO.builder().build();
         BeanUtils.copyProperties(found, testCustomer);
         testCustomer.setId(null);
         testCustomer.setCreatedAt(null);
         testCustomer.setUpdatedAt(null);
 
         // provide a return value for the mocked "createCustomer" method
-        given(customerService.createCustomer(any(Customer.class))).willReturn(customerServiceImpl.getAllCustomers().get(0));
+        given(customerService.createCustomer(any(CustomerDTO.class))).willReturn(customerServiceImpl.getAllCustomers().get(0));
 
         mockMvc
             .perform(post(CustomerController.CUSTOMERS_PATH)
@@ -118,10 +118,12 @@ public class CustomerControllerTest {
     @Test
     void testUpdateCustomerById() throws Exception {
         // get 1st item from list of customers to be used as test input
-        Customer found = customerServiceImpl.getAllCustomers().get(0);
-        Customer testCustomer = Customer.builder().build();
+        CustomerDTO found = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = CustomerDTO.builder().build();
         BeanUtils.copyProperties(found, testCustomer);
         testCustomer.setName(found.getName() + "**UPDATED**");
+
+        given(customerService.updateCustomer(any(), any())).willReturn(Optional.of(found));
 
         mockMvc
             .perform(put(CustomerController.CUSTOMERS_PATH_ID, testCustomer.getId())
@@ -138,7 +140,7 @@ public class CustomerControllerTest {
     @Test
     void testDeleteCustomerById() throws Exception {
         // get 1st item from list of customers
-        Customer testCustomer = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.getAllCustomers().get(0);
 
         mockMvc
             .perform(delete(CustomerController.CUSTOMERS_PATH_ID, testCustomer.getId()))
@@ -151,11 +153,13 @@ public class CustomerControllerTest {
     @Test
     void testPatchCustomerById() throws Exception {
         // get 1st item from list of customers to be used as test input
-        Customer found = customerServiceImpl.getAllCustomers().get(0);
-        Customer testCustomer = Customer.builder()
+        CustomerDTO found = customerServiceImpl.getAllCustomers().get(0);
+        CustomerDTO testCustomer = CustomerDTO.builder()
             .id(found.getId())
             .name(found.getName() + "**PATCHED**")
             .build();
+
+        given(customerService.updateCustomer(any(), any())).willReturn(Optional.of(found));
 
         mockMvc
             .perform(patch(CustomerController.CUSTOMERS_PATH_ID, testCustomer.getId())

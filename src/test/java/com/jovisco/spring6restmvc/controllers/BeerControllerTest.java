@@ -11,7 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jovisco.spring6restmvc.model.Beer;
+import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.services.BeerService;
 import com.jovisco.spring6restmvc.services.BeerServiceImpl;
 
@@ -55,7 +55,7 @@ public class BeerControllerTest {
     @Test
     void testListBeers() throws Exception {
         // get list of beers to be returned by the test
-        List<Beer> testBeers = beerServiceImpl.listBeers();
+        List<BeerDTO> testBeers = beerServiceImpl.listBeers();
        given(beerService.listBeers()).willReturn(testBeers);
 
        // mock the GET request
@@ -69,7 +69,7 @@ public class BeerControllerTest {
     @Test
     void testGetBeerById() throws Exception {
         // get 1st beer from list to return that as test data
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
         given(beerService.getBeerById(testBeer.getId())).willReturn(Optional.of(testBeer));
 
         mockMvc.perform(get(BeerController.BEERS_PATH_ID, testBeer.getId())
@@ -93,14 +93,14 @@ public class BeerControllerTest {
     @Test
     void testCreateBeer() throws Exception {
         // get 1st item from list of beers for mapping to jSON
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
         testBeer.setId(null);
         testBeer.setVersion(null);
         testBeer.setCreatedAt(null);
         testBeer.setUpdatedAt(null);
 
         // this is needed to have a return value for the mocked "createBeer" within the beer controller
-        given(beerService.createBeer(any(Beer.class))).willReturn(beerServiceImpl.listBeers().get(1));
+        given(beerService.createBeer(any(BeerDTO.class))).willReturn(beerServiceImpl.listBeers().get(1));
 
         mockMvc
             .perform(post(BeerController.BEERS_PATH)
@@ -115,10 +115,12 @@ public class BeerControllerTest {
     @Test
     void testUpdateBeerById() throws Exception {
         // get 1st item on list for testing
-        Beer found = beerServiceImpl.listBeers().get(0);
-        Beer testBeer = Beer.builder().build();
+        BeerDTO found = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = BeerDTO.builder().build();
         BeanUtils.copyProperties(found, testBeer);
         testBeer.setPrice(new BigDecimal(11.22));
+
+        given(beerService.updateBeer(any(), any())).willReturn(Optional.of(found));
 
         mockMvc
             .perform(put(BeerController.BEERS_PATH_ID, testBeer.getId())
@@ -135,7 +137,7 @@ public class BeerControllerTest {
     @Test
     void testDeleteBeerById() throws Exception {
         // get 1st item from list of beers
-        Beer testBeer = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = beerServiceImpl.listBeers().get(0);
 
         mockMvc
             .perform(delete(BeerController.BEERS_PATH_ID, testBeer.getId()))
@@ -148,12 +150,13 @@ public class BeerControllerTest {
     @Test
     void testPatchBeerById() throws Exception {
         // get 1st item on list for testing
-        Beer found = beerServiceImpl.listBeers().get(0);
-        Beer testBeer = Beer.builder()
+        BeerDTO found = beerServiceImpl.listBeers().get(0);
+        BeerDTO testBeer = BeerDTO.builder()
             .id(found.getId())
             .price(new BigDecimal(11.33))
             .build();
     
+        given(beerService.updateBeer(any(), any())).willReturn(Optional.of(found));
 
         mockMvc
             .perform(patch(BeerController.BEERS_PATH_ID, testBeer.getId())

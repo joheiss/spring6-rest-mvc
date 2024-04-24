@@ -11,8 +11,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.jovisco.spring6restmvc.controllers.NotFoundException;
-import com.jovisco.spring6restmvc.model.Beer;
+import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.model.BeerStyle;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class BeerServiceImpl implements BeerService {
 
-    private Map<UUID, Beer> beerMap;
+    private Map<UUID, BeerDTO> beerMap;
 
     public BeerServiceImpl() {
         this.beerMap = initBeerMap();
     }
 
     @Override
-    public List<Beer> listBeers() {
+    public List<BeerDTO> listBeers() {
 
         log.debug("Service BeerService.listBeers was called");
 
@@ -36,7 +35,7 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Optional<Beer> getBeerById(UUID id) {
+    public Optional<BeerDTO> getBeerById(UUID id) {
         
         log.debug("Service BeerService.getBeerById was called with id: " + id);
 
@@ -44,8 +43,8 @@ public class BeerServiceImpl implements BeerService {
     }
     
     @Override
-    public Beer createBeer(Beer beer) {
-        Beer savedBeer = Beer.builder()
+    public BeerDTO createBeer(BeerDTO beer) {
+        BeerDTO savedBeer = BeerDTO.builder()
             .id(UUID.randomUUID())
             .version(1)
             .createdAt(LocalDateTime.now())
@@ -63,9 +62,11 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Beer updateBeer(UUID id, Beer beer) {
+    public Optional<BeerDTO> updateBeer(UUID id, BeerDTO beer) {
         // get beer by id
-        Beer found = getBeerById(id).orElseThrow(NotFoundException::new);
+        BeerDTO found = getBeerById(id).orElse(null);
+
+        if (found == null) return Optional.ofNullable(found);
 
         // replace values
         String name = beer.getName();
@@ -97,7 +98,7 @@ public class BeerServiceImpl implements BeerService {
         // store changes
         beerMap.put(found.getId(), found);
 
-        return found;
+        return Optional.ofNullable(found);
     }
 
     @Override
@@ -105,11 +106,11 @@ public class BeerServiceImpl implements BeerService {
        beerMap.remove(id);
     }
 
-    private Map<UUID, Beer> initBeerMap() {
+    private Map<UUID, BeerDTO> initBeerMap() {
 
-        Map<UUID, Beer> beerMap = new HashMap<>();
+        Map<UUID, BeerDTO> beerMap = new HashMap<>();
 
-        Beer beer1 = Beer.builder()
+        BeerDTO beer1 = BeerDTO.builder()
             .id(UUID.randomUUID())
             .version(1)
             .name("Erdinger Weizen")
@@ -121,7 +122,7 @@ public class BeerServiceImpl implements BeerService {
             .updatedAt(LocalDateTime.now())
             .build();
 
-        Beer beer2 = Beer.builder()
+        BeerDTO beer2 = BeerDTO.builder()
             .id(UUID.randomUUID())
             .version(1)
             .name("Salvator Bock")
@@ -133,7 +134,7 @@ public class BeerServiceImpl implements BeerService {
             .updatedAt(LocalDateTime.now())
             .build();
 
-        Beer beer3 = Beer.builder()
+        BeerDTO beer3 = BeerDTO.builder()
             .id(UUID.randomUUID())
             .version(1)
             .name("Paulaner Hell")
