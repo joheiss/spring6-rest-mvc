@@ -3,7 +3,9 @@ package com.jovisco.spring6restmvc.entities;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
@@ -29,7 +31,9 @@ public class Customer {
     private UUID id;
     @Version private Integer version;
     private String name;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Column(length = 255)
+    private String email;
+    @CreationTimestamp private LocalDateTime createdAt;
+    @UpdateTimestamp private LocalDateTime updatedAt;
 
 }

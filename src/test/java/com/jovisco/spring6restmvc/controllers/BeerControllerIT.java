@@ -28,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jovisco.spring6restmvc.mappers.BeerMapper;
 import com.jovisco.spring6restmvc.model.BeerDTO;
+import com.jovisco.spring6restmvc.model.BeerStyle;
 import com.jovisco.spring6restmvc.repositories.BeerRepository;
 
 
@@ -66,6 +67,7 @@ public class BeerControllerIT {
         // build a test beer
         var beer = BeerDTO.builder()
             .name("TestBier")
+            .style(BeerStyle.ALE)
             .price(new BigDecimal(7.89))
             .quantityOnHand(1)
             .upc("47118")

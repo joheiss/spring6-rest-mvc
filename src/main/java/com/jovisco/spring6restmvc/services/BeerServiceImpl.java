@@ -1,7 +1,6 @@
 package com.jovisco.spring6restmvc.services;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,8 +46,6 @@ public class BeerServiceImpl implements BeerService {
         BeerDTO savedBeer = BeerDTO.builder()
             .id(UUID.randomUUID())
             .version(1)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
             .name(beer.getName())
             .style(beer.getStyle())
             .price(beer.getPrice())
@@ -93,7 +90,6 @@ public class BeerServiceImpl implements BeerService {
         if (quantityOnHand != null && quantityOnHand != found.getQuantityOnHand()) {
             found.setQuantityOnHand(quantityOnHand);
         }
-        found.setUpdatedAt(LocalDateTime.now());
         
         // store changes
         beerMap.put(found.getId(), found);
@@ -118,8 +114,6 @@ public class BeerServiceImpl implements BeerService {
             .upc("12341")
             .price(new BigDecimal(9.87))
             .quantityOnHand(121)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
             .build();
 
         BeerDTO beer2 = BeerDTO.builder()
@@ -130,8 +124,6 @@ public class BeerServiceImpl implements BeerService {
             .upc("12342")
             .price(new BigDecimal(1.23))
             .quantityOnHand(122)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
             .build();
 
         BeerDTO beer3 = BeerDTO.builder()
@@ -142,8 +134,6 @@ public class BeerServiceImpl implements BeerService {
             .upc("12343")
             .price(new BigDecimal(12.34))
             .quantityOnHand(123)
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
             .build();
 
     beerMap.put(beer1.getId(), beer1);
