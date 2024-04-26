@@ -94,6 +94,9 @@ public class BootstrapData implements CommandLineRunner {
     private void loadBeerDataFromCsv() throws FileNotFoundException {
 
         if (beerRepository.count() < 10) {
+            
+            log.debug("... load test data for beers from CSV file ...");
+
             // get CSV file
             File file = ResourceUtils.getFile("classpath:csvdata/beers.csv");
             // convert csv data to pojo

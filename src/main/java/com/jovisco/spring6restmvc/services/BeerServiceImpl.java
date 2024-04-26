@@ -3,12 +3,15 @@ package com.jovisco.spring6restmvc.services;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.model.BeerStyle;
@@ -26,11 +29,46 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public List<BeerDTO> listBeers() {
+    public Page<BeerDTO> getAllBeers() {
 
-        log.debug("Service BeerService.listBeers was called");
+        var pageRequest = PageRequestBuilder.build(null, null);
+        var size = this.beerMap.size();
+        var from = Math.min(pageRequest.getPageSize() * pageRequest.getPageNumber(), size);;
+        var to = Math.min(from + pageRequest.getPageSize(), size);
 
-        return new ArrayList<>(beerMap.values());
+        return new PageImpl<BeerDTO>(new ArrayList<>(beerMap.values()).subList(from, to));
+    }
+
+    @Override
+    public Page<BeerDTO> listBeers(String name, BeerStyle style, Boolean showInventory, Integer pageSize, Integer pageNumber) {
+
+        var pageRequest = PageRequestBuilder.build(null, null);
+        var size = this.beerMap.size();
+        var from = Math.min(pageRequest.getPageSize() * pageRequest.getPageNumber(), size);;
+        var to = Math.min(from + pageRequest.getPageSize(), size);
+
+        Page<BeerDTO> beers = getAllBeers();
+
+        var beerStream = beers.stream();
+        if (StringUtils.hasText(name)) {
+            beerStream.filter(beer -> beer.getName().contains(name));
+        }
+
+        if (style != null) {
+            beerStream.filter(beer -> beer.getStyle().equals(style));
+        }
+
+        if (showInventory != null && !showInventory) {
+            beerStream.map(beer -> {
+                beer.setQuantityOnHand(null);
+                return beer;
+            });
+        }
+
+        return new PageImpl<>(
+            beerStream.collect(Collectors.toList())
+                .subList(from, to)
+        );
     }
 
     @Override

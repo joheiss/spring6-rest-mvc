@@ -1,17 +1,19 @@
 package com.jovisco.spring6restmvc.services;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.jovisco.spring6restmvc.entities.Beer;
 import com.jovisco.spring6restmvc.mappers.BeerMapper;
 import com.jovisco.spring6restmvc.model.BeerDTO;
+import com.jovisco.spring6restmvc.model.BeerStyle;
 import com.jovisco.spring6restmvc.repositories.BeerRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,12 +26,39 @@ public class BeerServiceJpa implements BeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
+
     @Override
-    public List<BeerDTO> listBeers() {
-        return beerRepository.findAll()
-            .stream()
-            .map(beerMapper::beerToBeerDto)
-            .collect(Collectors.toList());
+    public Page<BeerDTO> getAllBeers() {
+
+        var pageRequest = PageRequestBuilder.build(null, null);
+        var pageableSize = Pageable.ofSize(pageRequest.getPageSize());
+
+        return beerRepository.findAll(pageableSize).map(beerMapper::beerToBeerDto);
+    }
+
+    @Override
+    public Page<BeerDTO> listBeers(String name, BeerStyle style, Boolean showInventory, Integer pageSize, Integer pageNumber) {
+
+        var pageRequest = PageRequestBuilder.build(pageSize, pageNumber);
+        var pageableSize = Pageable.ofSize(pageRequest.getPageSize());
+
+        Page<Beer> beers;
+
+        if (StringUtils.hasText(name) && style != null) {
+            beers = beerRepository.findByNameContainingIgnoreCaseAndStyle(name, style, pageableSize);
+        } else if (StringUtils.hasText(name)) {
+            beers = beerRepository.findByNameContainingIgnoreCase(name, pageableSize);
+        } else if (style != null) {
+            beers = beerRepository.findByStyle(style, pageableSize);
+        } else {
+            beers = beerRepository.findAll(pageableSize);
+        }
+
+        if (showInventory != null && !showInventory) {
+            beers.forEach(beer -> beer.setQuantityOnHand(null));
+        }
+
+        return beers.map(beerMapper::beerToBeerDto);
     }
 
     @Override
@@ -71,5 +100,4 @@ public class BeerServiceJpa implements BeerService {
 
         beerRepository.deleteById(id);
     }
-    
 }

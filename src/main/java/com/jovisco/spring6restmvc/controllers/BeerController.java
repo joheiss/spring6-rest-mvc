@@ -1,16 +1,16 @@
 package com.jovisco.spring6restmvc.controllers;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jovisco.spring6restmvc.model.BeerDTO;
+import com.jovisco.spring6restmvc.model.BeerStyle;
 import com.jovisco.spring6restmvc.services.BeerService;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class BeerController {
@@ -34,17 +34,19 @@ public class BeerController {
     private final BeerService beerService;
     
     @GetMapping(BEERS_PATH)
-    public List<BeerDTO> listBeers() {
+    public Page<BeerDTO> listBeers(
+        @RequestParam(required = false) String name, 
+        @RequestParam(required = false) BeerStyle style,
+        @RequestParam(required = false) Boolean showInventory,
+        @RequestParam(required = false) Integer pageSize,
+        @RequestParam(required = false) Integer pageNumber
+        ) {
         
-        log.debug("Controller BeerController.listBeers was called");
-
-        return beerService.listBeers();
+        return beerService.listBeers(name, style, showInventory, pageSize, pageNumber);
     }
 
     @GetMapping(BEERS_PATH_ID)
     public BeerDTO getBeerById(@PathVariable UUID id) {
-
-        log.debug("Controller BeerController.getBeerById was called with id: " + id);
 
         return beerService.getBeerById(id).orElseThrow(NotFoundException::new);
     }
