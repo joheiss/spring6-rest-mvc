@@ -6,6 +6,12 @@ Content-Type: application/json
 
 ###
 
+# GET list of beers with name and style
+GET {{url}}/beers?name=IPA&style=IPA
+Content-Type: application/json
+
+###
+
 # GET beer by id
 GET {{url}}/beers/184372f5-18f7-4b12-9590-e02002123923
 Content-Type: application/json

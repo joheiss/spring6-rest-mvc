@@ -31,7 +31,7 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public Page<BeerDTO> getAllBeers() {
 
-        var pageRequest = PageRequestBuilder.build(null, null);
+        var pageRequest = BeerPageRequestBuilder.build(null, null);
         var size = this.beerMap.size();
         var from = Math.min(pageRequest.getPageSize() * pageRequest.getPageNumber(), size);;
         var to = Math.min(from + pageRequest.getPageSize(), size);
@@ -42,7 +42,7 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public Page<BeerDTO> listBeers(String name, BeerStyle style, Boolean showInventory, Integer pageSize, Integer pageNumber) {
 
-        var pageRequest = PageRequestBuilder.build(null, null);
+        var pageRequest = BeerPageRequestBuilder.build(null, null);
         var size = this.beerMap.size();
         var from = Math.min(pageRequest.getPageSize() * pageRequest.getPageNumber(), size);;
         var to = Math.min(from + pageRequest.getPageSize(), size);

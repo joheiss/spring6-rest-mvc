@@ -30,7 +30,7 @@ public class BeerServiceJpa implements BeerService {
     @Override
     public Page<BeerDTO> getAllBeers() {
 
-        var pageRequest = PageRequestBuilder.build(null, null);
+        var pageRequest = BeerPageRequestBuilder.build(null, null);
         var pageableSize = Pageable.ofSize(pageRequest.getPageSize());
 
         return beerRepository.findAll(pageableSize).map(beerMapper::beerToBeerDto);
@@ -39,19 +39,18 @@ public class BeerServiceJpa implements BeerService {
     @Override
     public Page<BeerDTO> listBeers(String name, BeerStyle style, Boolean showInventory, Integer pageSize, Integer pageNumber) {
 
-        var pageRequest = PageRequestBuilder.build(pageSize, pageNumber);
-        var pageableSize = Pageable.ofSize(pageRequest.getPageSize());
+        var pageRequest = BeerPageRequestBuilder.build(pageSize, pageNumber);
 
         Page<Beer> beers;
 
         if (StringUtils.hasText(name) && style != null) {
-            beers = beerRepository.findByNameContainingIgnoreCaseAndStyle(name, style, pageableSize);
+            beers = beerRepository.findByNameContainingIgnoreCaseAndStyle(name, style, pageRequest);
         } else if (StringUtils.hasText(name)) {
-            beers = beerRepository.findByNameContainingIgnoreCase(name, pageableSize);
+            beers = beerRepository.findByNameContainingIgnoreCase(name, pageRequest);
         } else if (style != null) {
-            beers = beerRepository.findByStyle(style, pageableSize);
+            beers = beerRepository.findByStyle(style, pageRequest);
         } else {
-            beers = beerRepository.findAll(pageableSize);
+            beers = beerRepository.findAll(pageRequest);
         }
 
         if (showInventory != null && !showInventory) {

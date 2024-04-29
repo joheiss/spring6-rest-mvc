@@ -2,6 +2,8 @@ package com.jovisco.spring6restmvc.entities;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -15,6 +17,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,13 +41,52 @@ public class Beer {
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false)
     private UUID id;
-    @Version private Integer version;
-    @NotBlank @NotNull @Size(max = 50) @Column(length = 50) private String name;
-    @NotNull private BeerStyle style;
-    @NotBlank @NotNull private String upc;
-    private Integer quantityOnHand;
-    @NotNull private BigDecimal price;
-    @CreationTimestamp private LocalDateTime createdAt;
-    @UpdateTimestamp private LocalDateTime updatedAt;
 
+    @Version 
+    private Integer version;
+
+    @NotBlank 
+    @NotNull @Size(max = 50) 
+    @Column(length = 50) 
+    private String name;
+
+    @NotNull
+     private BeerStyle style;
+
+    @NotBlank 
+    @NotNull 
+    private String upc;
+
+    private Integer quantityOnHand;
+
+    @NotNull 
+    private BigDecimal price;
+
+    @CreationTimestamp 
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp 
+    private LocalDateTime updatedAt;
+
+
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+        name = "beer_category",
+        joinColumns = @JoinColumn(name = "beer_id"),
+        inverseJoinColumns = @JoinColumn(name = "category_id"))
+    private Set<Category> categories = new HashSet<>();
+
+    public void addCategory(Category category){
+        this.categories.add(category);
+        category.getBeers().add(this);
+    }
+
+    public void removeCategory(Category category){
+        this.categories.remove(category);
+        category.getBeers().remove(this);
+    }
+
+    @OneToMany(mappedBy = "beer")
+    private Set<BeerOrderLine> beerOrderLines;
 }
