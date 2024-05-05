@@ -8,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.hamcrest.core.Is.is;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -56,9 +58,15 @@ public class BeerControllerIT {
 
     MockMvc mockMvc;
 
+    private static final String USERNAME = "user1";
+    private static final String PASSWORD = "password";
+
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+        mockMvc = MockMvcBuilders
+            .webAppContextSetup(wac)
+            .apply(springSecurity())
+            .build();
     }
     
     @Rollback
@@ -152,8 +160,24 @@ public class BeerControllerIT {
     }
 
     @Test
-    void testListBeersFilteredByName() throws Exception {
+    void testInvalidCredentialsWillFail() throws Exception {
+       mockMvc.perform(get(BeerController.BEERS_PATH).queryParam("name", "IPA")
+                .with(httpBasic(USERNAME, "wrong"))
+            )
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testWithoutCredentialsWillFail() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH).queryParam("name", "IPA"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void testListBeersFilteredByName() throws Exception {
+       mockMvc.perform(get(BeerController.BEERS_PATH).queryParam("name", "IPA")
+                .with(httpBasic(USERNAME, PASSWORD))
+            )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content.length()", is(25)))
             .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.notNullValue()));
@@ -162,9 +186,11 @@ public class BeerControllerIT {
     @Test
     void testListBeersFilteredByNameWithPaging() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-            .queryParam("name", "IPA")
-            .queryParam("pageSize","25")
-            .queryParam("pageNumber","2"))
+                .with(httpBasic(USERNAME, PASSWORD))
+                .queryParam("name", "IPA")
+                .queryParam("pageSize","25")
+                .queryParam("pageNumber","2")
+            )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content.length()", is(25)))
             .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.notNullValue()));
@@ -172,7 +198,10 @@ public class BeerControllerIT {
 
     @Test
     void testListBeersFilteredByStyle() throws Exception {
-       mockMvc.perform(get(BeerController.BEERS_PATH).queryParam("style", BeerStyle.IPA.name()))
+       mockMvc.perform(get(BeerController.BEERS_PATH)
+                .with(httpBasic(USERNAME, PASSWORD))
+                .queryParam("style", BeerStyle.IPA.name())
+            )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content.length()", is(25)))
             .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.notNullValue()));
@@ -181,8 +210,10 @@ public class BeerControllerIT {
     @Test
     void testListBeersFilteredByNameAndStyle() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-            .queryParam("name", "IPA")
-            .queryParam("style", BeerStyle.IPA.name()))
+                .with(httpBasic(USERNAME, PASSWORD))
+                .queryParam("name", "IPA")
+                .queryParam("style", BeerStyle.IPA.name())
+            )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content.length()", is(25)))
             .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.notNullValue()));
@@ -191,7 +222,9 @@ public class BeerControllerIT {
     @Test
     void testListBeersWithShowInventoryIsTrue() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-            .queryParam("showInventory", "true"))
+                .with(httpBasic(USERNAME, PASSWORD))
+                .queryParam("showInventory", "true")
+            )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.notNullValue()));
     }
@@ -199,7 +232,9 @@ public class BeerControllerIT {
         @Test
     void testListBeersWithShowInventoryIsFalse() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-            .queryParam("showInventory", "false"))
+                .with(httpBasic(USERNAME, PASSWORD))
+                .queryParam("showInventory", "false")
+            )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content[0].quantityOnHand").value(IsNull.nullValue()));
     }
@@ -216,6 +251,7 @@ public class BeerControllerIT {
 
         var result = mockMvc
             .perform(patch(BeerController.BEERS_PATH_ID, found.getId())
+                .with(httpBasic(USERNAME, PASSWORD))
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerMap))
                 .contentType(MediaType.APPLICATION_JSON)

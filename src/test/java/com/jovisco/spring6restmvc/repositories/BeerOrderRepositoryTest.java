@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jovisco.spring6restmvc.entities.Beer;
 import com.jovisco.spring6restmvc.entities.BeerOrder;
@@ -14,7 +15,6 @@ import com.jovisco.spring6restmvc.entities.BeerOrderLine;
 import com.jovisco.spring6restmvc.entities.BeerOrderShipment;
 import com.jovisco.spring6restmvc.entities.Customer;
 
-import jakarta.transaction.Transactional;
 
 // @DataJpaTest -> use @SpringBootTest here to get data provided
 @SpringBootTest
