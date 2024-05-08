@@ -1,16 +1,18 @@
 @url = http://localhost:8080/api/v1
 @auth = user1:password
+@token = eyJraWQiOiIyOTcxMDNlZS0xZTA1LTQ3ZDYtYjUwYS04NzQ5OTQ2YzYxOTEiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJvaWRjLWNsaWVudCIsImF1ZCI6Im9pZGMtY2xpZW50IiwibmJmIjoxNzE1MTAxOTE5LCJzY29wZSI6WyJtZXNzYWdlLnJlYWQiLCJtZXNzYWdlLndyaXRlIl0sImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6OTAwMCIsImV4cCI6MTcxNTEwMjIxOSwiaWF0IjoxNzE1MTAxOTE5LCJqdGkiOiJkMzA5MTBiNi0zZjdkLTQzOTUtOTY2Ny1iYTRiZjg3MDQwNGYifQ.HrRvCZQIY6j5MIB1heO-5YRmaRqaiWNh7V7okx3N3Lw_ufLLiAegrrG96ALu6lsbK3cKIXT3ycBywtDH18QWfZuQ0HFoAqL8IESQaHAsed_3B16V0p0Tyuj_gHdPmdvWPZLcJqK93E7D3i43kst5MKQiJUl30yAl22hbVyTLu__t3vlDO-eQpoXnioYqIU_bb8VybSrLw1b4bfsccVXqQ--7xN8t54RlDqlzpn6pfPfIszMQWdhgqsFTtU01bLBq1WpS49GQ918bMn5s5Wdx55V0cUdX_aC4De9ANjNiT116ru3uNhVVWDq4QyP_hOko_uiCxIawI9NMMfOFb301Ig
 
 
 # GET list of beers
 GET {{url}}/beers
-Authorization: Basic {{auth}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 ###
 
 # GET list of beers with name and style
 GET {{url}}/beers?name=IPA&style=IPA
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 ###

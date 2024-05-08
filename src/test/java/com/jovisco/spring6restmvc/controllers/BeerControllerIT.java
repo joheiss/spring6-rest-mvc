@@ -8,10 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.hamcrest.core.Is.is;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -58,8 +60,18 @@ public class BeerControllerIT {
 
     MockMvc mockMvc;
 
-    private static final String USERNAME = "user1";
-    private static final String PASSWORD = "password";
+    // private static final String USERNAME = "user1";
+    // private static final String PASSWORD = "password";
+
+    private static final SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor jwtRequestPostProcessor = 
+        jwt().jwt(jwt -> jwt.claims(
+            claims -> {
+                claims.put("scope", "message.read");
+                claims.put("scope", "message.write");
+            })
+            .subject("oidc-client")
+            .notBefore(Instant.now().minusSeconds(5))
+        );
 
     @BeforeEach
     void setUp() {
@@ -162,7 +174,8 @@ public class BeerControllerIT {
     @Test
     void testInvalidCredentialsWillFail() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH).queryParam("name", "IPA")
-                .with(httpBasic(USERNAME, "wrong"))
+                // .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, "wrong"))
             )
             .andExpect(status().isUnauthorized());
     }
@@ -176,7 +189,8 @@ public class BeerControllerIT {
     @Test
     void testListBeersFilteredByName() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH).queryParam("name", "IPA")
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content.length()", is(25)))
@@ -186,7 +200,8 @@ public class BeerControllerIT {
     @Test
     void testListBeersFilteredByNameWithPaging() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
                 .queryParam("name", "IPA")
                 .queryParam("pageSize","25")
                 .queryParam("pageNumber","2")
@@ -199,7 +214,8 @@ public class BeerControllerIT {
     @Test
     void testListBeersFilteredByStyle() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
                 .queryParam("style", BeerStyle.IPA.name())
             )
             .andExpect(status().isOk())
@@ -210,7 +226,8 @@ public class BeerControllerIT {
     @Test
     void testListBeersFilteredByNameAndStyle() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
                 .queryParam("name", "IPA")
                 .queryParam("style", BeerStyle.IPA.name())
             )
@@ -222,7 +239,8 @@ public class BeerControllerIT {
     @Test
     void testListBeersWithShowInventoryIsTrue() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
                 .queryParam("showInventory", "true")
             )
             .andExpect(status().isOk())
@@ -232,7 +250,8 @@ public class BeerControllerIT {
         @Test
     void testListBeersWithShowInventoryIsFalse() throws Exception {
        mockMvc.perform(get(BeerController.BEERS_PATH)
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
                 .queryParam("showInventory", "false")
             )
             .andExpect(status().isOk())
@@ -251,7 +270,8 @@ public class BeerControllerIT {
 
         var result = mockMvc
             .perform(patch(BeerController.BEERS_PATH_ID, found.getId())
-                .with(httpBasic(USERNAME, PASSWORD))
+                .with(jwtRequestPostProcessor)
+                // .with(httpBasic(USERNAME, PASSWORD))
                 .accept(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beerMap))
                 .contentType(MediaType.APPLICATION_JSON)
