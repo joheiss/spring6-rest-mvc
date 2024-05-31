@@ -1,7 +1,25 @@
-@url = http://localhost:8080/api/v1
+@baseUrl = http://localhost:8071
+@url = {{baseUrl}}/api/v1
 @auth = user1:password
 @token = eyJraWQiOiI1OWRiY2JhZi1hYmU4LTQ4YzEtOGM1ZC02ZTFmYzVkMTE3N2UiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJvaWRjLWNsaWVudCIsImF1ZCI6Im9pZGMtY2xpZW50IiwibmJmIjoxNzE2OTc2OTE3LCJzY29wZSI6WyJtZXNzYWdlLnJlYWQiLCJtZXNzYWdlLndyaXRlIl0sImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6OTAwMCIsImV4cCI6MTcxNjk3NzIxNywiaWF0IjoxNzE2OTc2OTE3LCJqdGkiOiI1ZGJlMjBjZC1mNGNkLTRlZWMtYjVlYy03YWY0N2RmZDFhN2YifQ.eFeAbn6nHQslZZWM_uoi2INqGn6W19Qu8mzRDMYT3vGki_1zmtMknFkU5MTpQjvnSRnY_AwQwYE-YxNXZO4oqrbD1Wv-V6KrqJm8ZGwXnBRhHv_V9vtWIalkVMoJfgBWn2cDyQMXuiUbqHdLRLIaE641aQWMQOdVaRDQ9Ehybuk2Hh-HBD311ka_MgKSBp7wPbPcvW1D-oFN4vjDjw-OuLkZT4_XsPRhgZDc5sqP9m3gN1P8d6mjJCfC3mfRGPf7tnk5-D8wdDNXQR-06khYHiNkLyDAHc8s2FkXrkj_HsXlPHpHuRos16lfuuz9CUk-K9gYvtuBhvtMK0Vt5kxR8g
 
+# health check (actuator)
+
+GET {{baseUrl}}/actuator/health 
+
+###
+
+# kubernetes probe for readiness (actuator)
+
+GET {{baseUrl}}/actuator/health/readiness
+
+###
+
+# kubernetes probe for liveliness (actuator)
+
+GET {{baseUrl}}/actuator/health/liveness
+
+###
 
 # GET list of beers
 GET {{url}}/beers
