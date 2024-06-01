@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +26,10 @@ public class CustomerServiceJpa implements CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
 
+    // use CacheManager to solve eviction issue
+    private final CacheManager cacheManager;
+
+    @Cacheable(cacheNames = "customersCache")
     @Override
     public List<CustomerDTO> getAllCustomers() {
         return customerRepository.findAll()
@@ -32,6 +38,7 @@ public class CustomerServiceJpa implements CustomerService {
             .collect(Collectors.toList());
     }
 
+    @Cacheable(cacheNames = "customerCache", key = "#id")
     @Override
     public Optional<CustomerDTO> getCustomerById(UUID id) {
         return Optional.ofNullable(
@@ -43,6 +50,10 @@ public class CustomerServiceJpa implements CustomerService {
 
     @Override
     public CustomerDTO createCustomer(CustomerDTO customer) {
+        
+        // use cache manager to evict data from caches
+        cacheManager.getCache("customersCache").clear();
+
         Customer toBeCreated = customerMapper.customerDtoToCustomer(customer);
         
         return customerMapper.customerToCustomerDto(customerRepository.save(toBeCreated));
@@ -55,6 +66,9 @@ public class CustomerServiceJpa implements CustomerService {
 
         if (found == null) return Optional.ofNullable(customerMapper.customerToCustomerDto(found));
 
+        // use cache manager to evict data from caches
+        evictCache(id);
+
         if (customer.getName() != null) found.setName(customer.getName());
         found.setUpdatedAt(LocalDateTime.now());
             
@@ -66,4 +80,10 @@ public class CustomerServiceJpa implements CustomerService {
         customerRepository.deleteById(id);
     }
     
+    private void evictCache(UUID id) {
+
+        // use cache manager to evict data from caches
+        cacheManager.getCache("customerCache").evict(id);
+        cacheManager.getCache("customersCache").clear();
+    }
 }
