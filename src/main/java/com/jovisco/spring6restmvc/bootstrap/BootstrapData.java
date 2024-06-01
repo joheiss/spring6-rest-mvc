@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
@@ -12,14 +13,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import com.jovisco.spring6restmvc.entities.Beer;
+import com.jovisco.spring6restmvc.entities.BeerOrder;
+import com.jovisco.spring6restmvc.entities.BeerOrderLine;
 import com.jovisco.spring6restmvc.entities.Customer;
 import com.jovisco.spring6restmvc.model.BeerCSVRecord;
 import com.jovisco.spring6restmvc.model.BeerStyle;
+import com.jovisco.spring6restmvc.repositories.BeerOrderRepository;
 import com.jovisco.spring6restmvc.repositories.BeerRepository;
 import com.jovisco.spring6restmvc.repositories.CustomerRepository;
 import com.jovisco.spring6restmvc.services.BeerCsvService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,7 +35,8 @@ public class BootstrapData implements CommandLineRunner {
     private final BeerRepository beerRepository;
     private final BeerCsvService beerCsvService;
     private final CustomerRepository customerRepository;
-
+    private final BeerOrderRepository beerOrderRepository;
+    
     @Override
     public void run(String... args) throws Exception {
 
@@ -39,6 +45,7 @@ public class BootstrapData implements CommandLineRunner {
         loadBeerData();
         loadBeerDataFromCsv();
         loadCustomerData();
+        loadOrderData();
     }
 
     private void loadBeerData() {
@@ -131,5 +138,50 @@ public class BootstrapData implements CommandLineRunner {
             default -> BeerStyle.PILSNER;
         };
         return beerStyle;
+    }
+
+    private void loadOrderData() {
+        
+        if (beerOrderRepository.count() == 0) {
+            val customers = customerRepository.findAll();
+            val beers = beerRepository.findAll();
+
+            val beerIterator = beers.iterator();
+
+            customers.forEach(customer -> {
+                beerOrderRepository.save(BeerOrder.builder()
+                    .customer(customer)
+                    .beerOrderLines(Set.of(
+                            BeerOrderLine.builder()
+                                    .beer(beerIterator.next())
+                                    .orderQuantity(1)
+                                    .build(),
+                            BeerOrderLine.builder()
+                                    .beer(beerIterator.next())
+                                    .orderQuantity(2)
+                                    .build()
+                        )
+                    )
+                    .build()
+                );
+
+                beerOrderRepository.save(BeerOrder.builder()
+                    .customer(customer)
+                    .beerOrderLines(Set.of(
+                            BeerOrderLine.builder()
+                                    .beer(beerIterator.next())
+                                    .orderQuantity(1)
+                                    .build(),
+                            BeerOrderLine.builder()
+                                    .beer(beerIterator.next())
+                                    .orderQuantity(2)
+                                    .build()
+                        )
+                    )
+                    .build()
+                );
+            });
+            beerOrderRepository.findAll();
+        }
     }
 }

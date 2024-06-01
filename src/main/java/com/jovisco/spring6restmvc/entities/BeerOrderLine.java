@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
@@ -39,6 +40,7 @@ public class BeerOrderLine {
 
     @Id
     @GeneratedValue(generator = "UUID")
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     @JdbcTypeCode(SqlTypes.CHAR)
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false )
     private UUID id;
@@ -57,8 +59,11 @@ public class BeerOrderLine {
         return this.id == null;
     }
 
-    private Integer orderQuantity;
-    private Integer quantityAllocated;
+    @Builder.Default
+    private Integer orderQuantity = 1;
+
+    @Builder.Default
+    private Integer quantityAllocated = 0;
 
     @ManyToOne
     private Beer beer;
@@ -66,8 +71,8 @@ public class BeerOrderLine {
     @ManyToOne
     private BeerOrder beerOrder;
 
-    public void setBeerOrder(BeerOrder beerOrder) {
-        this.beerOrder = beerOrder;
-        beerOrder.getBeerOrderLines().add(this);
-    }
+    // public void setBeerOrder(BeerOrder beerOrder) {
+    //     this.beerOrder = beerOrder;
+    //     beerOrder.getBeerOrderLines().add(this);
+    // }
 }

@@ -126,3 +126,10 @@ Content-Type: application/json
 }
 
 ###
+
+# GET list of beers
+GET {{url}}/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+###

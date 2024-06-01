@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import com.jovisco.spring6restmvc.repositories.BeerOrderRepository;
 import com.jovisco.spring6restmvc.repositories.BeerRepository;
 import com.jovisco.spring6restmvc.repositories.CustomerRepository;
 import com.jovisco.spring6restmvc.services.BeerCsvService;
@@ -26,11 +27,14 @@ public class BootstrapDataTest {
     @Autowired
     CustomerRepository customerRepository;
     
+    @Autowired
+    BeerOrderRepository beerOrderRepository;
+
     BootstrapData bootstrapData;
 
     @BeforeEach
     void setUp() {
-        bootstrapData = new BootstrapData(beerRepository, beerCsvService, customerRepository);
+        bootstrapData = new BootstrapData(beerRepository, beerCsvService, customerRepository, beerOrderRepository);
     }
 
     @Test
@@ -39,5 +43,6 @@ public class BootstrapDataTest {
 
         assertThat(beerRepository.count()).isGreaterThan(0);
         assertThat(customerRepository.count()).isGreaterThan(0);
+        assertThat(beerOrderRepository.count()).isGreaterThan(0);
     }
 }
