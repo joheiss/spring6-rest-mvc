@@ -6,13 +6,16 @@ import java.util.UUID;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.jovisco.spring6restmvc.entities.Beer;
+import com.jovisco.spring6restmvc.events.BeerCreatedEvent;
 import com.jovisco.spring6restmvc.mappers.BeerMapper;
 import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.model.BeerStyle;
@@ -29,6 +32,7 @@ public class BeerServiceJpa implements BeerService {
 
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     // use CacheManager to solve eviction issue
     private final CacheManager cacheManager;
@@ -94,9 +98,19 @@ public class BeerServiceJpa implements BeerService {
         // use cache manager to evict data from list cache
         cacheManager.getCache("beersCache").clear();
         
-        Beer toBeCreated = beerMapper.beerDtoToBeer(beer);
-        
-        return beerMapper.beerToBeerDto(beerRepository.save(toBeCreated));
+        var toBeCreated = beerMapper.beerDtoToBeer(beer);
+
+        var created = beerRepository.save(toBeCreated);
+
+        // create application event
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        eventPublisher.publishEvent(BeerCreatedEvent.builder()
+            .beer(created)
+            .authentication(auth)
+            .build()
+        );
+
+        return beerMapper.beerToBeerDto(created);
     }
 
     

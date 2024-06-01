@@ -5,9 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.byLessThan;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.hamcrest.core.Is.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 
@@ -28,20 +27,29 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jovisco.spring6restmvc.events.BeerCreatedEvent;
 import com.jovisco.spring6restmvc.mappers.BeerMapper;
 import com.jovisco.spring6restmvc.model.BeerDTO;
 import com.jovisco.spring6restmvc.model.BeerStyle;
 import com.jovisco.spring6restmvc.repositories.BeerRepository;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
+@RecordApplicationEvents
 @SpringBootTest
 public class BeerControllerIT {
+
+    @Autowired
+    ApplicationEvents applicationEvents;
 
     @Autowired
     BeerController beerController;
@@ -81,6 +89,24 @@ public class BeerControllerIT {
             .build();
     }
     
+    @Test
+    void testCreateBeerMvc() throws JsonProcessingException, Exception {
+
+        var beerDTO = buildTestBeerDTO();
+
+        mockMvc.perform(
+            post(BeerController.BEERS_PATH)
+                .with(BeerControllerIT.jwtRequestPostProcessor)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(beerDTO))
+            )
+            .andExpect(status().isCreated())
+            .andReturn();   
+            
+        assertEquals(1, applicationEvents.stream(BeerCreatedEvent.class).count());
+    }
+
     @Rollback
     @Transactional
     @Test
@@ -318,5 +344,21 @@ public class BeerControllerIT {
         // verify that calling the update with an invalid UUID throws an exception
         assertThatExceptionOfType(NotFoundException.class)
             .isThrownBy(() -> beerController.updateBeerById(UUID.randomUUID(), BeerDTO.builder().build()));
+    }
+
+    private BeerDTO buildTestBeerDTO() {
+
+        var now = LocalDateTime.now();
+
+        // build a test beer
+        return BeerDTO.builder()
+            .name("TestBier")
+            .style(BeerStyle.ALE)
+            .price(new BigDecimal(7.89))
+            .quantityOnHand(1)
+            .upc("47118")
+            .createdAt(now)
+            .updatedAt(now)
+            .build();
     }
 }
