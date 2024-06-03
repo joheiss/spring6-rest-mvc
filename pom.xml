@@ -160,6 +160,10 @@
                     </execution>
                 </executions>
 				<configuration>
+					<layers>
+						<enabled>true</enabled>
+						<includeLayerTools>true</includeLayerTools>
+					</layers>
 					<jvmArguments>-Dspring.application.admin.enabled=true</jvmArguments>
 					<excludes>
 						<exclude>
