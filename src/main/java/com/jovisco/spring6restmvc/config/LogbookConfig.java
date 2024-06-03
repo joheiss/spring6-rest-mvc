@@ -7,6 +7,7 @@ import org.zalando.logbook.Sink;
 import org.zalando.logbook.json.JsonHttpLogFormatter;
 import org.zalando.logbook.logstash.LogstashLogbackSink;
 
+
 @Configuration
 public class LogbookConfig {
 
