@@ -1,6 +1,5 @@
 package com.jovisco.spring6restmvc.bootstrap;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -10,7 +9,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
 import com.jovisco.spring6restmvc.entities.Beer;
 import com.jovisco.spring6restmvc.entities.BeerOrder;
@@ -105,7 +103,10 @@ public class BootstrapData implements CommandLineRunner {
             log.debug("... load test data for beers from CSV file ...");
 
             // get CSV file
-            File file = ResourceUtils.getFile("classpath:csvdata/beers.csv");
+            // File file = ResourceUtils.getFile("classpath:csvdata/beers.csv");
+            var file = BootstrapData.class.getResourceAsStream("/csvdata/beers.csv");
+            log.debug("*** CSV file: " + file);
+            
             // convert csv data to pojo
             List<BeerCSVRecord> records = beerCsvService.convertCSV(file);
 
