@@ -132,7 +132,7 @@ public class BeerOrderServiceJpa implements BeerOrderService {
     @Override
     public void delete(UUID id) {
 
-        if (beerOrderRepository.existsById(id)) {
+        if (beerOrderRepository.findById(id).isPresent()) {
             evictCache(id);
             beerOrderRepository.deleteById(id);
         } else {
