@@ -2,9 +2,9 @@
 FROM openjdk:21-slim as builder
 
 WORKDIR /app
-ADD ./target/spring6-rest-mvc-0.0.1-SNAPSHOT.jar ./
+ADD ./maven/${project.build.finalName}.jar ./
 
-RUN java -Djarmode=layertools -jar spring6-rest-mvc-0.0.1-SNAPSHOT.jar extract
+RUN java -Djarmode=layertools -jar ${project.build.finalName}.jar extract
 
 # spring boot layer - infrequent changes
 FROM openjdk:21-slim
