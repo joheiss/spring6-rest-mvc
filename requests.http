@@ -7,6 +7,17 @@ GET {{baseUrl}}/actuator/health
 
 ###
 
+# health check on dynamic port (kubernetes NodePort)
+GET http://localhost:32465/actuator/health
+
+###
+GET http://localhost:32465/actuator/health/readiness
+
+###
+GET http://localhost:32465/actuator/health/liveness
+
+###
+
 # kubernetes probe for readiness (actuator)
 
 GET {{baseUrl}}/actuator/health/readiness
